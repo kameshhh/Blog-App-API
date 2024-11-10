@@ -23,5 +23,14 @@ public class GlobalExceptionHandler {
         // Return the map wrapped in a ResponseEntity
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request){
+    	
+    	Map<String, String> errorResponse = new HashMap<>();
+    	errorResponse.put("message", ex.getMessage());
+    	
+    	return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
 
 }

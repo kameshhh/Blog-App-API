@@ -1,6 +1,7 @@
 package com.project.blog.services.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,12 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUser(UserDto userDto, Integer userId) {
 		User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+		Optional<User> existingUser = this.userRepo.findByUsername(userDto.getUsername());
+		
+		if (existingUser.isPresent() && !Objects.equals(existingUser.get().getId(), userId)) {
+		    throw new ResourceAlreadyPresentException("User", "username", userDto.getUsername());
+		}
+		
 		user.setUsername(userDto.getUsername());
 		user.setName(userDto.getName());
 		user.setAbout(userDto.getAbout());
