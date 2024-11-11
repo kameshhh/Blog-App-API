@@ -2,6 +2,7 @@ package com.project.blog.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -34,5 +35,18 @@ public class GlobalExceptionHandler {
     	return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     	
     }
-
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+    	
+    	Map<String, String> errorResponse = new HashMap<>();
+    
+    	 ex.getBindingResult().getFieldErrors().forEach((error) -> {
+    	        String fieldName = error.getField();
+    	        String errorMessage = error.getDefaultMessage();
+    	        errorResponse.put(fieldName, errorMessage);
+    	    });
+    	
+    	return new ResponseEntity<Map<String,String>>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
