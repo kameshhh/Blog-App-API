@@ -1,5 +1,6 @@
 package com.project.blog.controllers;
 
+import com.project.blog.payloads.ApiResponse;
 import com.project.blog.payloads.PostDto;
 import com.project.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/posts")
-    public ResponseEntity<List<PostDto>> allPostsByUserId(
+    public ResponseEntity<List<PostDto>> getAllPostsByUserId(
             @PathVariable(name = "userId") Integer uId
     )
     {
@@ -37,11 +38,47 @@ public class PostController {
     }
 
     @GetMapping("/category/{categoryId}/posts")
-    public ResponseEntity<List<PostDto>> allPostsByCategoryId(
+    public ResponseEntity<List<PostDto>> getAllPostsByCategoryId(
             @PathVariable(name = "categoryId") Integer cId
     )
     {
         List<PostDto> posts = this.postService.getPostByCategory(cId);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
+
+    @GetMapping("/posts")
+    public  ResponseEntity<List<PostDto>> getAllPosts(){
+        List<PostDto> posts = this.postService.getAllPosts();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PostDto> getPostById(
+            @PathVariable(name = "postId") Integer pId
+    )
+    {
+        PostDto post = this.postService.getPostById(pId);
+        return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @PutMapping("posts/{postId}")
+    public ResponseEntity<PostDto> updatePost(
+            @RequestBody PostDto postDto,
+            @PathVariable(name = "postId") Integer pId
+    )
+    {
+        PostDto updatedPost = this.postService.updatePost(postDto, pId);
+        return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<?> deletePost(
+            @PathVariable(name = "postId") Integer pId
+    )
+    {
+        this.postService.deletePost(pId);
+        return new ResponseEntity<ApiResponse>(new ApiResponse("Post Deleted Successfully", true), HttpStatus.OK);
+    }
+
+
 }
