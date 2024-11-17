@@ -6,6 +6,7 @@ import com.project.blog.entities.User;
 import com.project.blog.exceptions.ResourceNotFoundException;
 import com.project.blog.payloads.CategoryDto;
 import com.project.blog.payloads.PostDto;
+import com.project.blog.payloads.PostResponse;
 import com.project.blog.repo.CategoryRepo;
 import com.project.blog.repo.PostRepo;
 import com.project.blog.repo.UserRepo;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -71,15 +73,25 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPosts(Integer pageNumber, Integer pageSize) {
+    public PostResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDirection) {
 
-        Pageable p = PageRequest.of(pageNumber, pageSize);
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable p = PageRequest.of(pageNumber, pageSize, sort);
         Page<Post> pagePosts = this.postRepo.findAll(p);
 
         List<Post> posts = pagePosts.getContent();
-
         List<PostDto> postDtos = posts.stream().map(this::postToPostDto).toList();
-        return postDtos;
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(postDtos);
+        postResponse.setPageNumber(pagePosts.getNumber());
+        postResponse.setPageSize(pagePosts.getSize());
+        postResponse.setTotalElements(pagePosts.getTotalElements());
+        postResponse.setTotalPages(pagePosts.getTotalPages());
+        postResponse.setLastPage(pagePosts.isLast());
+
+        return postResponse;
     }
 
     @Override
